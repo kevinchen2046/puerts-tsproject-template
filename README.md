@@ -5,9 +5,9 @@
 - 一般情况下不需要额外输入引用语句,但有得时候文件之间会存在一些不确定得引用关系,这个时候则需要使用`/// <reference path="xxx.ts" />`建立强制引用关系.
 
 ## 配置介绍
-`package.json`node包配置
-`tsconfig.json`ts环境配置
-`project.json`项目配置
+- `package.json`node包配置
+- `tsconfig.json`ts环境配置
+- `project.json`项目配置
 ```json
 {
     //工作目录 typescrpt存放目录
