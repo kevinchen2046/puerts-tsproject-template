@@ -29,6 +29,9 @@
 ## 工具脚本
 - `node cmd/ts_trans.js <foldername>` 帮助将现有的typescript文件转换成JSmodule可用的形式(去除import语句,添加默认modulename为game);
 
+## 安装环境
+`npm i`
+
 ## 启动编译
 `npm run start`
 
