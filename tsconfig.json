@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    // "module": "commonjs",
+    "target": "esnext",
+    "sourceMap": false,
+    "baseUrl": "..",
+    "outFile": "bin/main.js"
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "libs",
+    "src"
+  ]
+}

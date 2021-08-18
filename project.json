@@ -1,0 +1,9 @@
+{
+    "src":"./src",
+    "libs":"./libs",
+    "bin":"./bin",
+    "bin.unity":"../Assets/Resources",
+    "exclude.lib": [
+        
+    ]
+}
