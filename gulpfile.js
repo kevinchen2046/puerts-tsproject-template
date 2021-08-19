@@ -10,7 +10,7 @@ require('colors');
 async function runcmd(cmd, formatOutMethod) {
   return new Promise((relove, reject) => {
     var childProcess = require('child_process');
-    log('start cmd:' + cmd, "Command");
+    log(cmd.cyan, "Command");
     var handler = childProcess.exec(cmd, {
       encoding: 'buffer',
       timeout: 0, /*子进程最长执行时间 */
@@ -91,27 +91,25 @@ async function afterbuild() {
   }
 
   content = declare + content;
-  log("add declare done.".cyan);
   content += "\nnew Main();"
-  log("add launcher done.".cyan);
   fs.writeFileSync(`${projectconfig["bin.unity"]}/main.js.txt`, content, "utf-8");
   if (fs.existsSync(`${projectconfig.bin}/main.js.map`)) fs.writeFileSync(`${projectconfig["bin.unity"]}/main.js.map.txt`, fs.readFileSync(`${projectconfig.bin}/main.js.map`));
-  log("sync done.".cyan);
+  log("✔ 同步完成.".green);
 };
 
 async function build() {
   var code = await runcmd(`tsc --outFile ${projectconfig.bin}/main.js`, (err) => {
     return err.split(':').map((v, i) => {
-      if(i==0) return v.cyan.underline;
+      if(i==0) return v.yellow.underline;
       if(i==1) return v.red;
-      if(i==2) return v.yellow;
+      if(i==2) return v.white;
       return v;
     }).join(":");
   });
   if (code != 0) {
-    return Promise.resolve("compile fail.");
+    return Promise.resolve("❗编译失败...");
   } else {
-    log("compile done.".cyan);
+    log("✔ 编译完成.".green);
     return Promise.resolve();
   }
 };
