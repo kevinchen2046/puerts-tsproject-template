@@ -5,9 +5,9 @@ require('colors');
 /**
 * 执行命令
 * @param {string} cmd 命令全称
-* @param {Function} method 回调
+* @param {Function} formatOutMethod 回调
 */
-async function runcmd(cmd, method) {
+async function runcmd(cmd, formatOutMethod) {
   return new Promise((relove, reject) => {
     var childProcess = require('child_process');
     log('start cmd:' + cmd, "Command");
@@ -16,20 +16,15 @@ async function runcmd(cmd, method) {
       timeout: 0, /*子进程最长执行时间 */
       maxBuffer: 1024 * 1024
     });
-    var hasErr = false;
     function errHandler(data) {
-      if (!hasErr) {
-        hasErr = true;
-        log(`[ERROR]`, "Command");
-      }
-      log(`${data.toString().split('\n').filter(v => v.trim() != "").join('\n').cyan}`, "Command");
+      var err = `${data.toString().split('\n').filter(v => v.trim() != "").join('\n')}`;
+      log(formatOutMethod ? formatOutMethod(err) : err, "Command");
     }
     function exitHandler(code) {
       handler.stdout.removeListener('data', errHandler);
       handler.stderr.removeListener('data', errHandler);
       handler.removeListener('exit', exitHandler);
       relove(code);
-      if (method) method(code);
     }
     handler.stdout.on('data', errHandler);
     handler.stderr.on('data', errHandler);
@@ -100,14 +95,21 @@ async function afterbuild() {
   content += "\nnew Main();"
   log("add launcher done.".cyan);
   fs.writeFileSync(`${projectconfig["bin.unity"]}/main.js.txt`, content, "utf-8");
-  if(fs.existsSync(`${projectconfig.bin}/main.js.map`)) fs.writeFileSync(`${projectconfig["bin.unity"]}/main.js.map.txt`, fs.readFileSync(`${projectconfig.bin}/main.js.map`));
+  if (fs.existsSync(`${projectconfig.bin}/main.js.map`)) fs.writeFileSync(`${projectconfig["bin.unity"]}/main.js.map.txt`, fs.readFileSync(`${projectconfig.bin}/main.js.map`));
   log("sync done.".cyan);
 };
 
 async function build() {
-  var code = await runcmd(`tsc --outFile ${projectconfig.bin}/main.js`);
+  var code = await runcmd(`tsc --outFile ${projectconfig.bin}/main.js`, (err) => {
+    return err.split(':').map((v, i) => {
+      if(i==0) return v.cyan.underline;
+      if(i==1) return v.red;
+      if(i==2) return v.yellow;
+      return v;
+    }).join(":");
+  });
   if (code != 0) {
-    return Promise.reject("compile fail.");
+    return Promise.resolve("compile fail.");
   } else {
     log("compile done.".cyan);
     return Promise.resolve();
@@ -118,5 +120,10 @@ exports.prebuild = prebuild;
 exports.build = build;
 exports.afterbuild = afterbuild;
 exports.default = async function () {
-  build().then(async () => afterbuild(), async (err) => log(err.red, "Error: "));
+  var err = await build();
+  if (err) {
+    log(err.red, "Error: ");
+    return Promise.resolve();
+  }
+  await afterbuild();
 }
